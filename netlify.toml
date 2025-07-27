@@ -1,0 +1,20 @@
+# example netlify.toml
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[dev]
+  command = "npm run dev" # Command to start your dev server
+  port = 5173 # Port that the dev server will be listening on
+  publish = "dist" # Folder with the static content for _redirect file
+  functions = "netlify/functions" # Folder with the Netlify Functions
+  targetPort = 3000 # Port that the dev server will be listening on
+  autoLaunch = true # Automatically open the browser when starting the dev server
+  framework = "vite" # Framework used for the project
+
