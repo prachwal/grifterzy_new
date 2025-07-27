@@ -1,10 +1,26 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react'
+import '@ant-design/v5-patch-for-react-19'
+import { Loading, ThemeProvider, BodyThemeManager } from './components/common'
+import { store, persistor } from './store'
 import App from './App.tsx'
+import './styles/theme.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
+    <Provider store={store}>
+      <PersistGate
+        loading={<Loading fullScreen message="Przywracanie ustawień..." />}
+        persistor={persistor}
+      >
+        <ThemeProvider>
+          <BodyThemeManager>
+            <App />
+          </BodyThemeManager>
+        </ThemeProvider>
+      </PersistGate>
+    </Provider>
+  </StrictMode>
 )

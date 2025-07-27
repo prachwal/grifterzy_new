@@ -1,34 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Suspense, lazy } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { ErrorBoundaryWrapper, NotFound } from './components/errors'
+import { Loading } from './components/common'
+import { MainLayout } from './layouts/MainLayout'
+import 'antd/dist/reset.css'
+
+// Lazy loaded components
+const HomePage = lazy(() =>
+  import('./pages/HomePage').then(module => ({ default: module.HomePage }))
+)
+const ProfilePage = lazy(() =>
+  import('./pages/ProfilePage').then(module => ({ default: module.ProfilePage }))
+)
+const SettingsPage = lazy(() =>
+  import('./pages/SettingsPage').then(module => ({ default: module.SettingsPage }))
+)
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <ErrorBoundaryWrapper>
+      <Router>
+        <Suspense fallback={<Loading fullScreen message="Ładowanie strony..." />}>
+          <Routes>
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<HomePage />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </Suspense>
+      </Router>
+    </ErrorBoundaryWrapper>
   )
 }
 
