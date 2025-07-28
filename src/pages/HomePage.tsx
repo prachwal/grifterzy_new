@@ -1,6 +1,5 @@
 import { Typography, Card, Button } from 'antd'
-import { useAppSelector, useAppDispatch } from '../store'
-import { setUser } from '../store/slices/appSlice'
+import { useAuth0 } from '@auth0/auth0-react'
 import { useSystemTheme } from '../hooks/useSystemTheme'
 import { RocketOutlined } from '@ant-design/icons'
 import { ErrorTestComponent } from '../components/common'
@@ -8,17 +7,15 @@ import { ErrorTestComponent } from '../components/common'
 const { Title, Paragraph } = Typography
 
 export const HomePage = () => {
-    const dispatch = useAppDispatch()
-    const { user } = useAppSelector(state => state.app)
+    const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()
     const { actualTheme } = useSystemTheme()
 
     const handleLogin = () => {
-        dispatch(
-            setUser({
-                name: 'Jan Kowalski',
-                email: 'jan@example.com',
-            })
-        )
+        loginWithRedirect()
+    }
+
+    const handleLogout = () => {
+        logout({ logoutParams: { returnTo: window.location.origin } })
     }
 
     return (
@@ -40,7 +37,7 @@ export const HomePage = () => {
                     },
                 }}
             >
-                {user ? (
+                {isAuthenticated && user ? (
                     <div>
                         <Paragraph>
                             <strong>Zalogowany jako:</strong> {user.name}
@@ -48,7 +45,7 @@ export const HomePage = () => {
                         <Paragraph>
                             <strong>Email:</strong> {user.email}
                         </Paragraph>
-                        <Button onClick={() => dispatch(setUser(null))} danger>
+                        <Button onClick={handleLogout} danger>
                             Wyloguj
                         </Button>
                     </div>

@@ -15,16 +15,18 @@ import storage from 'redux-persist/lib/storage'
 import { combineReducers } from '@reduxjs/toolkit'
 import appSlice from './slices/appSlice'
 import uiSlice from './slices/uiSlice'
+import authSlice from './slices/authSlice'
 
 const persistConfig = {
   key: 'grifterzy-root',
   storage,
-  whitelist: ['app'], // Only persist app slice, not UI state
+  whitelist: ['app', 'auth'], // Persist app and auth slices
 }
 
 const rootReducer = combineReducers({
   app: appSlice,
   ui: uiSlice,
+  auth: authSlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

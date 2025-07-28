@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ErrorBoundaryWrapper, NotFound } from './components/errors'
 import { Loading } from './components/common'
 import { MainLayout } from './layouts/MainLayout'
+import { Auth0DebugLogger } from './components/auth/Auth0DebugLogger'
+import { Auth0StoreSync } from './components/auth'
 import 'antd/dist/reset.css'
 
 // Lazy loaded components
@@ -19,6 +21,8 @@ const SettingsPage = lazy(() =>
 function App() {
   return (
     <ErrorBoundaryWrapper>
+      <Auth0DebugLogger />
+      <Auth0StoreSync />
       <Router>
         <Suspense fallback={<Loading fullScreen message="Ładowanie strony..." />}>
           <Routes>

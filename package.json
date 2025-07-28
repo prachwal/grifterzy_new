@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:mock": "node mock-netlify-server.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -14,10 +15,13 @@
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@auth0/auth0-react": "^2.4.0",
     "@netlify/functions": "^4.1.15",
     "@reduxjs/toolkit": "^2.8.2",
     "@types/node": "^24.1.0",
     "antd": "^5.26.6",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0",

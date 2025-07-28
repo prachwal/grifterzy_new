@@ -2,6 +2,7 @@ import { Layout, Menu, Typography } from 'antd'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAppSelector } from '../store'
 import { useSystemTheme } from '../hooks/useSystemTheme'
+import { LoginButton } from '../components/auth'
 import { HomeOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons'
 
 const { Header, Content, Sider } = Layout
@@ -72,7 +73,7 @@ export const MainLayout = () => {
                         background: actualTheme === 'dark' ? '#001529' : '#fff',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'flex-end',
+                        justifyContent: 'space-between',
                         borderBottom: `1px solid ${actualTheme === 'dark' ? '#303030' : '#f0f0f0'}`,
                     }}
                 >
@@ -81,6 +82,7 @@ export const MainLayout = () => {
                             Motyw: {settings.theme === 'system' ? `System (${actualTheme})` : settings.theme}
                         </span>
                     </div>
+                    <LoginButton />
                 </Header>
                 <Content style={{ margin: '24px 16px 0' }}>
                     <div

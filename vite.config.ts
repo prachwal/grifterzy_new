@@ -4,6 +4,10 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    port: 5173,
+    host: true, // Allow access from network
+  },
   build: {
     rollupOptions: {
       output: {
@@ -53,6 +57,7 @@ export default defineConfig({
       'react-router-dom',
       '@reduxjs/toolkit',
       'react-redux',
+      '@auth0/auth0-react',
     ],
   },
 })

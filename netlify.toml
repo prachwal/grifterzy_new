@@ -1,29 +1,81 @@
-# example netlify.toml
+# Netlify configuration optimized for Vite
 [build]
-  command = "npm run build"
-  functions = "netlify/functions"
-  publish = "dist"
+command = "npm run build"
+functions = "netlify/functions"
+publish = "dist"
 
-[api]
-  directory = "netlify/functions" # Directory where your Netlify Functions are located
+[build.environment]
+# Node.js version for build
+NODE_VERSION = "18"
+# NPM version
+NPM_VERSION = "9"
 
+# Netlify Functions configuration
+[functions]
+directory = "netlify/functions"
+# Optimize function bundling for faster cold starts
+node_bundler = "esbuild"
+
+# API redirects for Netlify Functions
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-  force = true
+from = "/api/*"
+to = "/.netlify/functions/:splat"
+status = 200
+force = true
 
+# SPA redirect - must be last
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+from = "/*"
+to = "/index.html"
+status = 200
 
+# Development server configuration
 [dev]
-  command = "npm run dev" # Command to start your dev server
-  port = 3000 # Port that the dev server will be listening on
-  publish = "dist" # Folder with the static content for _redirect file
-  functions = "netlify/functions" # Folder with the Netlify Functions
-  targetPort = 5173 # Port that the dev server will be listening on
-  autoLaunch = true # Automatically open the browser when starting the dev server
-  framework = "vite" # Framework used for the project
+command = "npm run dev"
+port = 3000                     # Netlify Dev default port
+targetPort = 5173               # Vite default port
+publish = "dist"
+functions = "netlify/functions"
+autoLaunch = true
+framework = "vite"
 
+# Headers for better performance and security
+[[headers]]
+for = "/*"
+[headers.values]
+# Security headers
+X-Frame-Options = "DENY"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Vite assets caching
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/index.html"
+[headers.values]
+# Don't cache the main HTML file
+Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+for = "/*.js"
+[headers.values]
+# Cache JS files for 1 year
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/*.css"
+[headers.values]
+# Cache CSS files for 1 year
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/assets/*"
+[headers.values]
+# Cache Vite assets for 1 year
+Cache-Control = "public, max-age=31536000, immutable"
+
+# Optional: Edge handlers for better performance
+# [[edge_functions]]
+#   function = "auth-check"
+#   path = "/protected/*"
