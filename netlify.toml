@@ -1,27 +1,42 @@
-# Netlify configuration optimized for Vite
+# Netlify configuration optimized for Vite + Lambda + Express
 [build]
 command = "npm run build"
 functions = "netlify/functions"
 publish = "dist"
 
 [build.environment]
-# Node.js version for build
+# Node.js version for build (18 recommended for stability)
 NODE_VERSION = "18"
 # NPM version
 NPM_VERSION = "9"
+# Enable faster builds
+NPM_FLAGS = "--production=false"
 
 # Netlify Functions configuration
 [functions]
 directory = "netlify/functions"
 # Optimize function bundling for faster cold starts
 node_bundler = "esbuild"
+# External dependencies that shouldn't be bundled
+external_node_modules = ["express", "serverless-http"]
 
-# API redirects for Netlify Functions
+# Function-specific configuration
+[functions."api"]
+# Function timeout (max 10s for hobby plan)
+timeout = 10
+
+# API redirects for Netlify Functions - Express + Lambda
 [[redirects]]
 from = "/api/*"
-to = "/.netlify/functions/:splat"
+to = "/.netlify/functions/api/:splat"
 status = 200
 force = true
+
+# Health check redirect (optional)
+[[redirects]]
+from = "/health"
+to = "/.netlify/functions/api/health"
+status = 200
 
 # SPA redirect - must be last
 [[redirects]]
@@ -32,50 +47,126 @@ status = 200
 # Development server configuration
 [dev]
 command = "npm run dev"
-port = 3000                     # Netlify Dev default port
-targetPort = 5173               # Vite default port
+port = 3000                     # Netlify Dev port
+targetPort = 5173               # Vite dev server port
 publish = "dist"
 functions = "netlify/functions"
 autoLaunch = true
 framework = "vite"
+# Enable function logs in development
+functionsPort = 9999
 
-# Headers for better performance and security
+# Security and performance headers
 [[headers]]
 for = "/*"
 [headers.values]
 # Security headers
 X-Frame-Options = "DENY"
 X-Content-Type-Options = "nosniff"
+X-XSS-Protection = "1; mode=block"
 Referrer-Policy = "strict-origin-when-cross-origin"
+Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
-# Vite assets caching
-Cache-Control = "public, max-age=31536000, immutable"
-
+# Default caching for static assets
 [[headers]]
-for = "/index.html"
+for = "/assets/*"
 [headers.values]
-# Don't cache the main HTML file
-Cache-Control = "public, max-age=0, must-revalidate"
+# Cache Vite assets for 1 year with immutable flag
+Cache-Control = "public, max-age=31536000, immutable"
+# Add compression hint
+Vary = "Accept-Encoding"
 
 [[headers]]
 for = "/*.js"
 [headers.values]
 # Cache JS files for 1 year
 Cache-Control = "public, max-age=31536000, immutable"
+Content-Type = "application/javascript; charset=utf-8"
 
 [[headers]]
 for = "/*.css"
 [headers.values]
 # Cache CSS files for 1 year
 Cache-Control = "public, max-age=31536000, immutable"
+Content-Type = "text/css; charset=utf-8"
 
 [[headers]]
-for = "/assets/*"
+for = "/*.woff2"
 [headers.values]
-# Cache Vite assets for 1 year
+# Cache fonts for 1 year
 Cache-Control = "public, max-age=31536000, immutable"
+Content-Type = "font/woff2"
 
-# Optional: Edge handlers for better performance
+[[headers]]
+for = "/index.html"
+[headers.values]
+# Don't cache the main HTML file
+Cache-Control = "public, max-age=0, must-revalidate"
+Content-Type = "text/html; charset=utf-8"
+
+# API function headers
+[[headers]]
+for = "/.netlify/functions/*"
+[headers.values]
+# API specific headers
+Access-Control-Allow-Origin = "*"
+Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+Access-Control-Allow-Headers = "Content-Type, Authorization, X-Requested-With"
+Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Manifest and service worker
+[[headers]]
+for = "/manifest.json"
+[headers.values]
+Content-Type = "application/manifest+json"
+Cache-Control = "public, max-age=86400"    # 24 hours
+
+# Image optimization headers
+[[headers]]
+for = "/*.png"
+[headers.values]
+Cache-Control = "public, max-age=2592000" # 30 days
+
+[[headers]]
+for = "/*.jpg"
+[headers.values]
+Cache-Control = "public, max-age=2592000" # 30 days
+
+[[headers]]
+for = "/*.svg"
+[headers.values]
+Cache-Control = "public, max-age=2592000" # 30 days
+
+# Optional: Environment-specific configuration
+[context.production]
+command = "npm run build"
+[context.production.environment]
+NODE_ENV = "production"
+VITE_API_URL = "https://your-site.netlify.app/api"
+
+[context.deploy-preview]
+command = "npm run build"
+[context.deploy-preview.environment]
+NODE_ENV = "preview"
+
+[context.branch-deploy]
+command = "npm run build"
+
+# Optional: Plugin configuration
+# [[plugins]]
+#   package = "@netlify/plugin-lighthouse"
+# 
+# [[plugins]]
+#   package = "netlify-plugin-submit-sitemap"
+#   [plugins.inputs]
+#     baseUrl = "https://your-site.netlify.app"
+#     sitemapPath = "/sitemap.xml"
+
+# Optional: Edge functions for advanced routing
 # [[edge_functions]]
-#   function = "auth-check"
-#   path = "/protected/*"
+#   function = "auth-middleware"
+#   path = "/api/protected/*"
+# 
+# [[edge_functions]]
+#   function = "geo-redirect"
+#   path = "/geo/*"
